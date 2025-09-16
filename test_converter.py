@@ -51,11 +51,15 @@ class TestTextToNumber:
     def test_invalid_text(self):
         """Test invalid text raises ValueError."""
         with pytest.raises(ValueError, match="Unable to convert text to number"):
-            text_to_number("eleven")
-        with pytest.raises(ValueError, match="Unable to convert text to number"):
-            text_to_number("hundred")
-        with pytest.raises(ValueError, match="Unable to convert text to number"):
             text_to_number("invalid")
+        with pytest.raises(ValueError, match="Unable to convert text to number"):
+            text_to_number("not a number")
+    
+    def test_compound_numbers(self):
+        """Test compound number conversion."""
+        assert text_to_number("eleven") == 11
+        assert text_to_number("forty two") == 42
+        assert text_to_number("one hundred") == 100
 
 
 class TestNumberToText:
@@ -467,10 +471,42 @@ class TestErrorHandling:
     def test_invalid_text_input(self, client):
         """Test invalid text input."""
         response = client.post('/convert', 
-                              json={'input': 'eleven', 'inputType': 'text', 'outputType': 'decimal'})
+                              json={'input': 'invalid', 'inputType': 'text', 'outputType': 'decimal'})
         data = json.loads(response.data)
         assert data['result'] is None
         assert 'Unable to convert text to number' in data['error']
+    
+    def test_compound_text_input(self, client):
+        """Test compound text input that should work."""
+        response = client.post('/convert', 
+                              json={'input': 'eleven', 'inputType': 'text', 'outputType': 'decimal'})
+        data = json.loads(response.data)
+        assert data['result'] == '11'
+        assert data['error'] is None
+    
+    def test_readme_examples(self, client):
+        """Test examples from README.md should work."""
+        # Example 1: Convert decimal to binary: Input "42" with input type "decimal" and output type "binary"
+        response = client.post('/convert', 
+                              json={'input': '42', 'inputType': 'decimal', 'outputType': 'binary'})
+        data = json.loads(response.data)
+        assert data['result'] == '101010'
+        assert data['error'] is None
+        
+        # Example 2: Convert text to decimal: Input "forty two" with input type "text" and output type "decimal"
+        response = client.post('/convert', 
+                              json={'input': 'forty two', 'inputType': 'text', 'outputType': 'decimal'})
+        data = json.loads(response.data)
+        # This should work but currently fails due to bug in text_to_number function
+        assert data['result'] == '42'  # This will fail with current implementation
+        assert data['error'] is None
+        
+        # Example 3: Convert hexadecimal to text: Input "2a" with input type "hexadecimal" and output type "text"
+        response = client.post('/convert', 
+                              json={'input': '2a', 'inputType': 'hexadecimal', 'outputType': 'text'})
+        data = json.loads(response.data)
+        assert data['result'] == 'forty-two'
+        assert data['error'] is None
     
     def test_missing_json_data(self, client):
         """Test missing JSON data."""

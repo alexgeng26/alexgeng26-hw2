@@ -24,6 +24,20 @@ def text_to_number(text):
     if text in number_words:
         return number_words[text]
     
+    # Handle compound numbers like "forty two"
+    try:
+        # Use text2digits library for more complex number parsing
+        from text2digits import text2digits
+        t2d = text2digits.Text2Digits()
+        result = t2d.convert(text)
+        # Extract the first number found
+        import re as regex_module
+        numbers = regex_module.findall(r'\d+', result)
+        if numbers:
+            return int(numbers[0])
+    except:
+        pass
+    
     raise ValueError("Unable to convert text to number")
 
 def number_to_text(number):
