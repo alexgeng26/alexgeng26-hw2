@@ -98,13 +98,16 @@ def convert():
         if output_type == 'text':
             result = number_to_text(number)
         elif output_type == 'binary':
-            result = bin(number)[2:]  # Remove '0b' prefix
+            binary_str = bin(number)
+            result = binary_str[3:] if binary_str.startswith('-0b') else binary_str[2:]
         elif output_type == 'octal':
-            result = oct(number)[2:]  # Remove '0o' prefix
+            octal_str = oct(number)
+            result = octal_str[3:] if octal_str.startswith('-0o') else octal_str[2:]
         elif output_type == 'decimal':
             result = str(number)
         elif output_type == 'hexadecimal':
-            result = hex(number)[2:]  # Remove '0x' prefix
+            hex_str = hex(number)
+            result = hex_str[3:] if hex_str.startswith('-0x') else hex_str[2:]
         elif output_type == 'base64':
             result = number_to_base64(number)
         else:

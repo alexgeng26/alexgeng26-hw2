@@ -548,6 +548,33 @@ class TestEdgeCases:
         assert data['result'] == 'minus ten'
         assert data['error'] is None
     
+    def test_negative_binary_conversion(self, client):
+        """Test negative number to binary conversion."""
+        response = client.post('/convert', 
+                              json={'input': '-5', 'inputType': 'decimal', 'outputType': 'binary'})
+        data = json.loads(response.data)
+        # Should return proper binary representation (101, not b101)
+        assert data['result'] == '101'
+        assert data['error'] is None
+    
+    def test_negative_octal_conversion(self, client):
+        """Test negative number to octal conversion."""
+        response = client.post('/convert', 
+                              json={'input': '-5', 'inputType': 'decimal', 'outputType': 'octal'})
+        data = json.loads(response.data)
+        # Should return proper octal representation (5, not o5)
+        assert data['result'] == '5'
+        assert data['error'] is None
+    
+    def test_negative_hex_conversion(self, client):
+        """Test negative number to hexadecimal conversion."""
+        response = client.post('/convert', 
+                              json={'input': '-5', 'inputType': 'decimal', 'outputType': 'hexadecimal'})
+        data = json.loads(response.data)
+        # Should return proper hex representation (5, not x5)
+        assert data['result'] == '5'
+        assert data['error'] is None
+    
     def test_empty_input(self, client):
         """Test empty input."""
         response = client.post('/convert', 
